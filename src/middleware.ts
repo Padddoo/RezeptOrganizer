@@ -3,13 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow login page and API login route
-  if (pathname === '/login' || pathname === '/api/auth') {
-    return NextResponse.next();
-  }
-
-  // Allow static files and Next.js internals
+  // Allow login page, auth API, and static files
   if (
+    pathname === '/login' ||
+    pathname.startsWith('/api/auth') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||
     pathname === '/manifest.json' ||
@@ -24,7 +21,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect to login
+  // API routes get 401, pages get redirected to login
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
+  }
+
   const loginUrl = new URL('/login', request.url);
   return NextResponse.redirect(loginUrl);
 }
