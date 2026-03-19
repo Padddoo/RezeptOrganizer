@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
-import { unlink } from 'fs/promises';
-import { join } from 'path';
 
 export async function GET(
   _request: NextRequest,
@@ -89,15 +87,6 @@ export async function DELETE(
     const recipe = await prisma.recipe.findUnique({
       where: { id: params.id },
     });
-
-    if (recipe?.fileUrl) {
-      try {
-        const filePath = join(process.cwd(), 'public', recipe.fileUrl);
-        await unlink(filePath);
-      } catch {
-        // File may not exist, continue
-      }
-    }
 
     await prisma.recipe.delete({ where: { id: params.id } });
 
