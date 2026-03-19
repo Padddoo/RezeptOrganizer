@@ -1,0 +1,56 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
+}
+
+model Recipe {
+  id          String   @id @default(uuid())
+  title       String
+  ingredients String   // JSON array of ingredients
+  ocrRawText  String?  // Full OCR text for search
+  fileUrl     String?  // Path to stored file
+  fileType    String?  // "pdf" or "image"
+  lastCookedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categories  RecipeCategory[]
+  cookingLogs CookingLog[]
+
+  @@map("recipes")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String   @default("#22c55e")
+  createdAt DateTime @default(now())
+
+  recipes   RecipeCategory[]
+
+  @@map("categories")
+}
+
+model RecipeCategory {
+  recipeId   String
+  categoryId String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, categoryId])
+  @@map("recipe_categories")
+}
+
+model CookingLog {
+  id        String   @id @default(uuid())
+  recipeId  String
+  cookedAt  DateTime @default(now())
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@map("cooking_logs")
+}

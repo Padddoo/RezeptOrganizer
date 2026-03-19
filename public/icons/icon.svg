@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="96" fill="#16a34a"/>
+  <!-- Chef hat top (puffy part) -->
+  <ellipse cx="256" cy="180" rx="120" ry="90" fill="#ffffff"/>
+  <circle cx="176" cy="190" r="60" fill="#ffffff"/>
+  <circle cx="336" cy="190" r="60" fill="#ffffff"/>
+  <circle cx="216" cy="155" r="55" fill="#ffffff"/>
+  <circle cx="296" cy="155" r="55" fill="#ffffff"/>
+  <circle cx="256" cy="145" r="50" fill="#ffffff"/>
+  <!-- Hat band / base -->
+  <rect x="176" y="230" width="160" height="90" rx="8" fill="#ffffff"/>
+  <!-- Band line -->
+  <rect x="176" y="230" width="160" height="8" rx="4" fill="#16a34a" opacity="0.3"/>
+  <!-- Steam lines above hat -->
+  <path d="M220 90 Q225 70 220 50" stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M256 80 Q261 55 256 35" stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <path d="M292 90 Q297 70 292 50" stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>
+  <!-- Fork and spoon below -->
+  <!-- Spoon -->
+  <ellipse cx="220" cy="370" rx="18" ry="24" fill="#ffffff"/>
+  <rect x="216" y="390" width="8" height="70" rx="4" fill="#ffffff"/>
+  <!-- Fork -->
+  <rect x="280" y="355" width="5" height="40" rx="2" fill="#ffffff"/>
+  <rect x="291" y="355" width="5" height="40" rx="2" fill="#ffffff"/>
+  <rect x="302" y="355" width="5" height="40" rx="2" fill="#ffffff"/>
+  <rect x="278" y="390" width="31" height="8" rx="4" fill="#ffffff"/>
+  <rect x="289" y="395" width="9" height="65" rx="4" fill="#ffffff"/>
+</svg>
