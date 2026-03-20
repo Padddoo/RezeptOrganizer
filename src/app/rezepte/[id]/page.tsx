@@ -296,13 +296,13 @@ export default function RecipeDetailPage() {
             <div className="p-2">
               {recipe.fileType === 'pdf' ? (
                 <iframe
-                  src={recipe.fileUrl}
+                  src={`/api/files?url=${encodeURIComponent(recipe.fileUrl)}`}
                   className="h-[500px] w-full rounded-xl"
                   title="Rezept PDF"
                 />
               ) : (
                 <img
-                  src={recipe.fileUrl}
+                  src={`/api/files?url=${encodeURIComponent(recipe.fileUrl)}`}
                   alt={recipe.title}
                   className="w-full rounded-xl object-contain"
                 />

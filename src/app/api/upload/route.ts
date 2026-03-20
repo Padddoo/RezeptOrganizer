@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const isPdf = file.type === 'application/pdf' || ext === 'pdf';
 
     const blob = await put(`uploads/${fileName}`, file, {
-      access: 'public',
+      access: 'private',
     });
 
     return NextResponse.json({

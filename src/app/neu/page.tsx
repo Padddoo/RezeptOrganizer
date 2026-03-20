@@ -182,13 +182,13 @@ export default function NewRecipePage() {
           <div className="p-2">
             {uploadedFile.fileType === 'pdf' ? (
               <iframe
-                src={uploadedFile.fileUrl}
+                src={`/api/files?url=${encodeURIComponent(uploadedFile.fileUrl)}`}
                 className="h-96 w-full rounded-xl"
                 title="PDF Vorschau"
               />
             ) : (
               <img
-                src={uploadedFile.fileUrl}
+                src={`/api/files?url=${encodeURIComponent(uploadedFile.fileUrl)}`}
                 alt="Rezept"
                 className="max-h-96 w-full rounded-xl object-contain"
               />
