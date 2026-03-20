@@ -12,7 +12,7 @@ export default function HomePage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>('newest');
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +20,7 @@ export default function HomePage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set('search', search);
-    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedCategories.length > 0) params.set('categories', selectedCategories.join(','));
     params.set('sort', sort);
 
     const res = await fetch(`/api/rezepte?${params}`);
@@ -28,7 +28,7 @@ export default function HomePage() {
       setRecipes(await res.json());
     }
     setLoading(false);
-  }, [search, selectedCategory, sort]);
+  }, [search, selectedCategories, sort]);
 
   useEffect(() => {
     fetchRecipes();
@@ -92,24 +92,45 @@ export default function HomePage() {
             <SortAsc className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           </div>
 
-          {/* Category filter */}
-          <div className="relative">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="input appearance-none py-2 pl-9 pr-8 text-sm"
+          {/* Category filter reset */}
+          {selectedCategories.length > 0 && (
+            <button
+              onClick={() => setSelectedCategories([])}
+              className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm text-stone-500 hover:bg-stone-50"
             >
-              <option value="">Alle Kategorien</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-          </div>
+              Filter zurücksetzen
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Category tags */}
+      {categories.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => {
+            const isSelected = selectedCategories.includes(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() =>
+                  setSelectedCategories((prev) =>
+                    isSelected
+                      ? prev.filter((id) => id !== cat.id)
+                      : [...prev, cat.id]
+                  )
+                }
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Recipe grid */}
       {loading ? (
@@ -119,19 +140,19 @@ export default function HomePage() {
       ) : recipes.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-20 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-stone-100">
-            {search || selectedCategory ? (
+            {search || selectedCategories.length > 0 ? (
               <BookOpen className="h-8 w-8 text-stone-400" />
             ) : (
               <ChefHat className="h-8 w-8 text-stone-400" />
             )}
           </div>
           <h3 className="text-lg font-semibold text-stone-700">
-            {search || selectedCategory
+            {search || selectedCategories.length > 0
               ? 'Keine Rezepte gefunden'
               : 'Noch keine Rezepte'}
           </h3>
           <p className="mt-1 text-sm text-stone-500">
-            {search || selectedCategory
+            {search || selectedCategories.length > 0
               ? 'Versuche andere Suchbegriffe oder Filter.'
               : 'Füge dein erstes Rezept hinzu, um loszulegen!'}
           </p>

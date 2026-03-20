@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
-    const category = searchParams.get('category') || '';
+    const categoriesParam = searchParams.get('categories') || '';
     const sort = searchParams.get('sort') || 'newest';
 
     const where: Record<string, unknown> = {};
@@ -20,10 +20,13 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (category) {
-      where.categories = {
-        some: { categoryId: category },
-      };
+    if (categoriesParam) {
+      const categoryIds = categoriesParam.split(',').filter(Boolean);
+      if (categoryIds.length > 0) {
+        where.categories = {
+          some: { categoryId: { in: categoryIds } },
+        };
+      }
     }
 
     let orderBy: Record<string, string>;
