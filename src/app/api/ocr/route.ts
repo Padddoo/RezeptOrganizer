@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { extractTextFromImage, extractTextFromPdf } from '@/lib/ocr';
-import { extractRecipeWithAI } from '@/lib/extract-recipe';
+import { extractRecipeFromImage, extractRecipeFromText } from '@/lib/extract-recipe';
+import pdf from 'pdf-parse';
+
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,21 +13,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Keine Datei angegeben' }, { status: 400 });
     }
 
-    let rawText: string;
+    // Fetch file from Vercel Blob (private, needs auth token)
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    const response = await fetch(fileUrl, {
+      headers: blobToken ? { 'Authorization': `Bearer ${blobToken}` } : {},
+    });
 
-    // Fetch file from URL (Vercel Blob or local)
-    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      return NextResponse.json({ error: 'Datei konnte nicht geladen werden' }, { status: 400 });
+    }
+
     const buffer = Buffer.from(await response.arrayBuffer());
 
     if (fileType === 'pdf') {
-      rawText = await extractTextFromPdf(buffer);
+      // Extract text from PDF, then use Claude to parse
+      const data = await pdf(buffer);
+      const result = await extractRecipeFromText(data.text);
+      return NextResponse.json(result);
     } else {
-      rawText = await extractTextFromImage(fileUrl);
+      // Send image directly to Claude Vision
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+      const result = await extractRecipeFromImage(buffer, contentType);
+      return NextResponse.json(result);
     }
-
-    const result = await extractRecipeWithAI(rawText);
-
-    return NextResponse.json(result);
   } catch (error) {
     console.error('OCR error:', error);
     return NextResponse.json({ error: 'Texterkennung fehlgeschlagen' }, { status: 500 });
