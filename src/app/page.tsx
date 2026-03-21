@@ -120,11 +120,13 @@ export default function HomePage() {
                 <button
                   key={cat.id}
                   onClick={() =>
-                    setSelectedCategories((prev) =>
-                      isSelected
-                        ? prev.filter((id) => id !== cat.id)
-                        : [...prev, cat.id]
-                    )
+                    setSelectedCategories((prev) => {
+                      // Single-select: deselect if already selected, otherwise replace
+                      const withoutPrimary = prev.filter(
+                        (id) => !primaryCategories.some((pc) => pc.id === id)
+                      );
+                      return isSelected ? withoutPrimary : [...withoutPrimary, cat.id];
+                    })
                   }
                   className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                     isSelected
