@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { ChefHat, SortAsc, Filter, BookOpen } from 'lucide-react';
+import { ChefHat, SortAsc, Filter, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
 import RecipeCard from '@/components/RecipeCard';
 import { Recipe, Category } from '@/types';
@@ -15,6 +15,11 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>('newest');
   const [loading, setLoading] = useState(true);
+  const [showMoreCategories, setShowMoreCategories] = useState(false);
+
+  const PRIMARY_CATEGORY_NAMES = ['Vorspeise', 'Hauptgang', 'Dessert', 'Beilage'];
+  const primaryCategories = categories.filter((c) => PRIMARY_CATEGORY_NAMES.includes(c.name));
+  const secondaryCategories = categories.filter((c) => !PRIMARY_CATEGORY_NAMES.includes(c.name));
 
   const fetchRecipes = useCallback(async () => {
     setLoading(true);
@@ -106,29 +111,79 @@ export default function HomePage() {
 
       {/* Category tags */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => {
-            const isSelected = selectedCategories.includes(cat.id);
-            return (
-              <button
-                key={cat.id}
-                onClick={() =>
-                  setSelectedCategories((prev) =>
+        <div className="space-y-2">
+          {/* Primary categories - always visible */}
+          <div className="flex flex-wrap gap-2">
+            {primaryCategories.map((cat) => {
+              const isSelected = selectedCategories.includes(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() =>
+                    setSelectedCategories((prev) =>
+                      isSelected
+                        ? prev.filter((id) => id !== cat.id)
+                        : [...prev, cat.id]
+                    )
+                  }
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                     isSelected
-                      ? prev.filter((id) => id !== cat.id)
-                      : [...prev, cat.id]
-                  )
-                }
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  isSelected
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+
+            {/* Toggle button for secondary categories */}
+            {secondaryCategories.length > 0 && (
+              <button
+                onClick={() => setShowMoreCategories(!showMoreCategories)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1 ${
+                  showMoreCategories || secondaryCategories.some((c) => selectedCategories.includes(c.id))
+                    ? 'bg-stone-200 text-stone-700'
+                    : 'bg-stone-50 text-stone-400 hover:bg-stone-100 hover:text-stone-600'
                 }`}
               >
-                {cat.name}
+                Weitere Kategorien
+                {showMoreCategories ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          {/* Secondary categories - toggleable */}
+          {showMoreCategories && secondaryCategories.length > 0 && (
+            <div className="flex flex-wrap gap-2 pl-1">
+              {secondaryCategories.map((cat) => {
+                const isSelected = selectedCategories.includes(cat.id);
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() =>
+                      setSelectedCategories((prev) =>
+                        isSelected
+                          ? prev.filter((id) => id !== cat.id)
+                          : [...prev, cat.id]
+                      )
+                    }
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isSelected
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

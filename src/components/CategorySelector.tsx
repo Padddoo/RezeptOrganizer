@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Tag, Plus, Check } from 'lucide-react';
+import { Tag, Plus, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Category } from '@/types';
+
+const PRIMARY_CATEGORY_NAMES = ['Vorspeise', 'Hauptgang', 'Dessert', 'Beilage'];
 
 interface CategorySelectorProps {
   selectedIds: string[];
@@ -16,6 +18,10 @@ export default function CategorySelector({
   const [categories, setCategories] = useState<Category[]>([]);
   const [newName, setNewName] = useState('');
   const [showCreate, setShowCreate] = useState(false);
+  const [showMoreCategories, setShowMoreCategories] = useState(false);
+
+  const primaryCategories = categories.filter((c) => PRIMARY_CATEGORY_NAMES.includes(c.name));
+  const secondaryCategories = categories.filter((c) => !PRIMARY_CATEGORY_NAMES.includes(c.name));
 
   useEffect(() => {
     fetch('/api/kategorien')
@@ -59,58 +65,108 @@ export default function CategorySelector({
         <Tag className="h-3.5 w-3.5" />
         Kategorien
       </label>
-      <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => {
-          const selected = selectedIds.includes(cat.id);
-          return (
+      <div className="space-y-2">
+        {/* Primary categories - always visible */}
+        <div className="flex flex-wrap gap-2">
+          {primaryCategories.map((cat) => {
+            const selected = selectedIds.includes(cat.id);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => toggle(cat.id)}
+                className="badge border transition-all"
+                style={{
+                  backgroundColor: selected ? cat.color + '20' : 'transparent',
+                  borderColor: selected ? cat.color : '#d6d3d1',
+                  color: selected ? cat.color : '#78716c',
+                }}
+              >
+                {selected && <Check className="mr-1 h-3 w-3" />}
+                {cat.name}
+              </button>
+            );
+          })}
+
+          {/* Toggle for secondary categories */}
+          {secondaryCategories.length > 0 && (
             <button
-              key={cat.id}
-              onClick={() => toggle(cat.id)}
-              className="badge border transition-all"
-              style={{
-                backgroundColor: selected ? cat.color + '20' : 'transparent',
-                borderColor: selected ? cat.color : '#d6d3d1',
-                color: selected ? cat.color : '#78716c',
-              }}
+              onClick={() => setShowMoreCategories(!showMoreCategories)}
+              className={`badge border transition-all flex items-center gap-1 ${
+                showMoreCategories || secondaryCategories.some((c) => selectedIds.includes(c.id))
+                  ? 'border-stone-400 text-stone-600'
+                  : 'border-stone-300 text-stone-400 hover:border-stone-400 hover:text-stone-600'
+              }`}
             >
-              {selected && <Check className="mr-1 h-3 w-3" />}
-              {cat.name}
+              Weitere Kategorien
+              {showMoreCategories ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
             </button>
-          );
-        })}
-        {!showCreate ? (
-          <button
-            onClick={() => setShowCreate(true)}
-            className="badge border border-dashed border-stone-300 text-stone-400 hover:border-stone-400 hover:text-stone-600"
-          >
-            <Plus className="mr-1 h-3 w-3" />
-            Neue Kategorie
-          </button>
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && createCategory()}
-              className="input w-36 py-1 text-xs"
-              placeholder="Name..."
-              autoFocus
-            />
-            <button onClick={createCategory} className="btn-primary py-1 px-2 text-xs">
-              <Plus className="h-3 w-3" />
-            </button>
-            <button
-              onClick={() => {
-                setShowCreate(false);
-                setNewName('');
-              }}
-              className="btn-ghost py-1 px-2 text-xs"
-            >
-              Abbruch
-            </button>
+          )}
+        </div>
+
+        {/* Secondary categories - toggleable */}
+        {showMoreCategories && secondaryCategories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {secondaryCategories.map((cat) => {
+              const selected = selectedIds.includes(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => toggle(cat.id)}
+                  className="badge border transition-all"
+                  style={{
+                    backgroundColor: selected ? cat.color + '20' : 'transparent',
+                    borderColor: selected ? cat.color : '#d6d3d1',
+                    color: selected ? cat.color : '#78716c',
+                  }}
+                >
+                  {selected && <Check className="mr-1 h-3 w-3" />}
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         )}
+
+        {/* Create new category */}
+        <div className="flex flex-wrap gap-2">
+          {!showCreate ? (
+            <button
+              onClick={() => setShowCreate(true)}
+              className="badge border border-dashed border-stone-300 text-stone-400 hover:border-stone-400 hover:text-stone-600"
+            >
+              <Plus className="mr-1 h-3 w-3" />
+              Neue Kategorie
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && createCategory()}
+                className="input w-36 py-1 text-xs"
+                placeholder="Name..."
+                autoFocus
+              />
+              <button onClick={createCategory} className="btn-primary py-1 px-2 text-xs">
+                <Plus className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => {
+                  setShowCreate(false);
+                  setNewName('');
+                }}
+                className="btn-ghost py-1 px-2 text-xs"
+              >
+                Abbruch
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

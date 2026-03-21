@@ -11,11 +11,8 @@ async function main() {
     { name: 'Beilage', color: '#f59e0b' },
     { name: 'Suppe', color: '#f97316' },
     { name: 'Salat', color: '#84cc16' },
-    { name: 'Snack', color: '#8b5cf6' },
-    { name: 'Getränk', color: '#06b6d4' },
     { name: 'Italienisch', color: '#ef4444' },
     { name: 'Asiatisch', color: '#e11d48' },
-    { name: 'Deutsch', color: '#6366f1' },
     { name: 'Vegetarisch', color: '#22c55e' },
   ];
 
